@@ -13,19 +13,19 @@ Station::Station(GraphWidget *graphWidget)
     setFlag(ItemIsMovable);
     setFlag(ItemIsSelectable);
     setFlag(ItemSendsGeometryChanges);
+    setSelected(true);
     setZValue(-1);
 }
 
 QRectF Station::boundingRect() const
 {
-    qreal adjust = 2;
-    return QRectF(-10 - adjust, -10 - adjust, 23 + adjust, 23 + adjust);
+    return QRectF(-20, -20, 20, 20);
 }
 
 QPainterPath Station::shape() const
 {
     QPainterPath path;
-    path.addEllipse(-10, -10, 20, 20);
+    path.addEllipse(-20, -20, 20, 20);
     return path;
 }
 
@@ -33,5 +33,5 @@ void Station::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 {
     painter->setPen(QPen(Qt::black, 2, Qt::SolidLine));
     painter->setBrush(Qt::red);
-    painter->drawEllipse(-10, -10, 20, 20);
+    painter->drawEllipse(-20, -20, 20, 20);
 }
