@@ -31,7 +31,16 @@ QPainterPath Station::shape() const
 
 void Station::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    painter->setPen(QPen(Qt::black, 2, Qt::SolidLine));
-    painter->setBrush(Qt::red);
-    painter->drawEllipse(-20, -20, 20, 20);
+    if(!isSelected())
+    {
+        painter->setPen(QPen(Qt::black, 2, Qt::SolidLine));
+        painter->setBrush(Qt::red);
+        painter->drawEllipse(-20, -20, 20, 20);
+    }
+    else
+    {
+        painter->setPen(QPen(Qt::blue, 2, Qt::DashLine));
+        painter->setBrush(Qt::red);
+        painter->drawEllipse(-20, -20, 20, 20);
+    }
 }

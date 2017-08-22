@@ -5,6 +5,7 @@
 
 Edge::Edge(Station *sourceStation, Station *destStation)
 {
+    setZValue(-2);
     setFlag(ItemIsSelectable);
     setAcceptedMouseButtons(0);
     source = sourceStation;
@@ -27,14 +28,17 @@ void Edge::adjust()
     if(!source || !dest)
         return;
 
-    QLineF line( mapFromItem(source, 0, 0), mapFromItem(dest, 0, 0));
+    QLineF line( mapFromItem(source, -20, -20), mapFromItem(dest, -20, -20));
     qreal length = line.length();
 
-    if(length > qreal(20.))
+    prepareGeometryChange();
+
+    if(length > qreal(0.))
     {
-        QPointF edgeOffset((line.dx() * 10) / length, (line.dy() * 10) / length);
-        sourcePoint = line.p1() + edgeOffset;
-        destPoint = line.p2() - edgeOffset;
+        qreal penWidth = 15;
+        QPointF edgeOffset(penWidth / 2, penWidth / 2);
+        sourcePoint = source->pos() + edgeOffset;
+        destPoint = dest->pos() - edgeOffset;
     }
     else
     {
@@ -49,12 +53,10 @@ QRectF Edge::boundingRect() const
         return QRectF();
     }
 
-    qreal penWidth = 10;
-
-    return QRectF(sourcePoint, QSizeF(destPoint.x() - sourcePoint.x(),
-                                      destPoint.y() - sourcePoint.y()))
+    return QRectF(QPointF(source->pos().x(), source->pos().y()), QSizeF(dest->pos().x() - source->pos().x(),
+                                        dest->pos().y() - source->pos().y()))
             .normalized()
-            .adjusted(-penWidth, -penWidth, penWidth, penWidth);
+            .adjusted(-20, -20, 20, 20);
 }
 
 void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
@@ -62,10 +64,10 @@ void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     if(!source || !dest)
         return;
 
-    QLineF line(sourcePoint, destPoint);
-    if(qFuzzyCompare(line.length(), qreal(0.)))
+    QLineF line(source->pos() - QPointF(10, 10), dest->pos() - QPointF(10, 10));
+    if(qFuzzyCompare(line.length(), qreal(-10.)))
         return;
 
-    painter->setPen(QPen(Qt::red,10,Qt::SolidLine));
+    painter->setPen(QPen(Qt::darkRed,15,Qt::SolidLine));
     painter->drawLine(line);
 }

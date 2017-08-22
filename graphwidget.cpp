@@ -54,7 +54,7 @@ GraphWidget::GraphWidget(QWidget *parent)
 
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     scene->setSceneRect(-200,-200,400,400);
-    vw->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    vw->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     vw->setRenderHints(QPainter::Antialiasing);
     vw->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setMinimumSize(400,400);
@@ -79,9 +79,12 @@ void GraphWidget::keyPressEvent(QKeyEvent *evnt)
 {
     if(evnt->key() == Qt::Key_Space)
     {
+        qDebug()<<scene->selectedItems().count();
         if(scene->selectedItems().count() == 2)
         {
-            qDebug()<<scene->selectedItems().first()<<" "<<scene->selectedItems().last();
+            Edge *edg = new Edge((Station *)scene->selectedItems().first(), (Station *)scene->selectedItems().last());
+            scene->addItem(edg);
+            update();
         }
     }
 }
