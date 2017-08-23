@@ -20,10 +20,10 @@ private:
     void mouseDoubleClickEvent(QMouseEvent *evnt);
     void keyPressEvent(QKeyEvent *evnt);
 
-    std::set<Station *> stations;
-    std::set<Edge *> edges;
     QGraphicsView *vw;
     QGraphicsScene *scene;
+    const int StationType;
+    const int EdgeType;
     bool flagStation;
     bool flagEdge;
     bool flagShortest;

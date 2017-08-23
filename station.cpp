@@ -12,8 +12,7 @@ Station::Station(GraphWidget *graphWidget)
 {
     setFlag(ItemIsMovable);
     setFlag(ItemIsSelectable);
-    setFlag(ItemSendsGeometryChanges);
-    setSelected(true);
+    setFlag(ItemSendsGeometryChanges);    
     setZValue(-1);
 }
 
@@ -43,4 +42,10 @@ void Station::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
         painter->setBrush(Qt::red);
         painter->drawEllipse(-20, -20, 20, 20);
     }
+}
+
+int Station::type() const
+{
+
+    return QGraphicsItem::UserType+2;
 }

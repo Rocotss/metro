@@ -13,6 +13,8 @@ public:
     Station *sourceStation() const;
     Station *destStation() const;
 
+    int type() const override;
+
     void adjust();
 
 protected:

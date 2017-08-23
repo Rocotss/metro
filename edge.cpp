@@ -7,7 +7,6 @@ Edge::Edge(Station *sourceStation, Station *destStation)
 {
     setZValue(-2);
     setFlag(ItemIsSelectable);
-    setAcceptedMouseButtons(0);
     source = sourceStation;
     dest = destStation;
     adjust();
@@ -68,6 +67,19 @@ void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     if(qFuzzyCompare(line.length(), qreal(-10.)))
         return;
 
-    painter->setPen(QPen(Qt::darkRed,15,Qt::SolidLine));
+    if(!isSelected())
+    {
+        painter->setPen(QPen(Qt::darkRed,15,Qt::SolidLine));
+    }
+    else
+    {
+        painter->setPen(QPen(Qt::darkBlue, 15, Qt::DotLine));
+    }
     painter->drawLine(line);
 }
+
+int Edge::type() const
+{
+    return QGraphicsItem::UserType+1;
+}
+

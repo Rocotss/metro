@@ -5,17 +5,20 @@
 #include <set>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QGraphicsItem>
 #include <QRadioButton>
 #include <QPushButton>
 #include <QGuiApplication>
 #include <QGroupBox>
+#include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
 #include <QDebug>
 
 GraphWidget::GraphWidget(QWidget *parent)
-    : QWidget(parent), flagStation(true), flagEdge(true), flagShortest(true), flagCheapest(true), flagTransfer(true)
+    : QWidget(parent), StationType(QGraphicsItem::UserType+2), EdgeType(QGraphicsItem::UserType+1),
+      flagStation(true), flagEdge(true), flagShortest(true), flagCheapest(true), flagTransfer(true)
 {
     scene= new QGraphicsScene(this);
     vw = new QGraphicsView(scene);
@@ -23,7 +26,8 @@ GraphWidget::GraphWidget(QWidget *parent)
     QHBoxLayout *hblLayout = new QHBoxLayout();
 
     QVBoxLayout *vblPanel = new QVBoxLayout();
-    QVBoxLayout *vblRb = new QVBoxLayout();
+    QVBoxLayout *vblEdit = new QVBoxLayout();
+    QVBoxLayout *vblSearch = new QVBoxLayout();
 
     QRadioButton *createStations = new QRadioButton("Create stations");
     createStations->setChecked(true);
@@ -35,17 +39,27 @@ GraphWidget::GraphWidget(QWidget *parent)
     QPushButton *btnSearch = new QPushButton("Search");
     btnSearch->setEnabled(false);
 
-    QGroupBox *grbxPanel = new QGroupBox("Panel");
+    QGroupBox *grbxEdit = new QGroupBox("Editing");
+    QGroupBox *grbxSearch = new QGroupBox("Search");
+    QButtonGroup *btnGroup = new QButtonGroup();
 
-    vblRb->addWidget(createStations);
-    vblRb->addWidget(createEdges);
-    vblRb->addWidget(calcShortest);
-    vblRb->addWidget(calcCheapest);
-    vblRb->addWidget(calcTransfers);
+    btnGroup->addButton(createStations);
+    btnGroup->addButton(createEdges);
+    btnGroup->addButton(calcShortest);
+    btnGroup->addButton(calcCheapest);
+    btnGroup->addButton(calcTransfers);
 
-    grbxPanel->setLayout(vblRb);
+    vblEdit->addWidget(createStations);
+    vblEdit->addWidget(createEdges);
+    grbxEdit->setLayout(vblEdit);
 
-    vblPanel->addWidget(grbxPanel);
+    vblSearch->addWidget(calcShortest);
+    vblSearch->addWidget(calcCheapest);
+    vblSearch->addWidget(calcTransfers);
+    grbxSearch->setLayout(vblSearch);
+
+    vblPanel->addWidget(grbxEdit);
+    vblPanel->addWidget(grbxSearch);
     vblPanel->addWidget(btnSearch);
 
     hblLayout->addWidget(vw);
@@ -59,6 +73,12 @@ GraphWidget::GraphWidget(QWidget *parent)
     vw->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setMinimumSize(400,400);
     setWindowTitle("Metro");
+/*
+    QObject::connect(btnGroup, &QRadioButton::toggled, this, [](flagStation, flagEdge, flagShortest, flagCheapest, flagTransfer){
+
+
+    });
+*/
 }
 
 void GraphWidget::mouseDoubleClickEvent(QMouseEvent *evnt)
@@ -67,24 +87,32 @@ void GraphWidget::mouseDoubleClickEvent(QMouseEvent *evnt)
             scene->items(evnt->pos(), Qt::IntersectsItemShape).empty() &&
             flagStation == true)
     {
-
-        Station *st = *stations.insert(new Station(this)).first;
+        Station *st = new Station(this);
         scene->addItem(st);
         st->setPos(vw->mapToScene(evnt->pos()));
         update();
     }
 }
-//dont work
+
 void GraphWidget::keyPressEvent(QKeyEvent *evnt)
 {
     if(evnt->key() == Qt::Key_Space)
     {
-        qDebug()<<scene->selectedItems().count();
-        if(scene->selectedItems().count() == 2)
+        if((scene->selectedItems().count() == 2)  &&
+                (scene->selectedItems().first()->type() == StationType) &&
+                (scene->selectedItems().last()->type() == StationType))
         {
             Edge *edg = new Edge((Station *)scene->selectedItems().first(), (Station *)scene->selectedItems().last());
             scene->addItem(edg);
             update();
         }
+    }
+
+    if(evnt->key() == Qt::Key_Delete &&
+            scene->selectedItems().count() == 1)
+    {
+        QGraphicsItem *data = scene->selectedItems().last();
+        scene->removeItem(data);
+        delete data;
     }
 }

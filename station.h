@@ -16,6 +16,8 @@ public:
     QPainterPath shape() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *) override;
 
+    int type() const;
+
 private:
     GraphWidget *graph;
     std::string name;
