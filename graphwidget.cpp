@@ -13,11 +13,14 @@
 #include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QInputDialog>
 
 #include <QDebug>
 
+enum{EdgeType = QGraphicsItem::UserType + 1, StationType};
+
 GraphWidget::GraphWidget(QWidget *parent)
-    : QWidget(parent), StationType(QGraphicsItem::UserType+2), EdgeType(QGraphicsItem::UserType+1),
+    : QWidget(parent),
       flagStation(true), flagEdge(true), flagShortest(true), flagCheapest(true), flagTransfer(true)
 {
     scene= new QGraphicsScene(this);
@@ -73,19 +76,67 @@ GraphWidget::GraphWidget(QWidget *parent)
     vw->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setMinimumSize(400,400);
     setWindowTitle("Metro");
-/*
-    QObject::connect(btnGroup, &QRadioButton::toggled, this, [](flagStation, flagEdge, flagShortest, flagCheapest, flagTransfer){
 
+/*    QObject::connect(btnGroup, &QRadioButton::toggled, this, [](){
+        int id = QButtonGroup.checkedId();
+        switch (id) {
+        case 0:
+            {
+                flagStation = true;
+                flagEdge = false;
+                flagShortest = false;
+                flagCheapest = false;
+                flagTransfer = false;
+                break;
+            }
+        case 1:
+            {
+                flagStation = false;
+                flagEdge = true;
+                flagShortest = false;
+                flagCheapest = false;
+                flagTransfer = false;
+                break;
+            }
+        case 2:
+            {
+                flagStation = false;
+                flagEdge = false;
+                flagShortest = true;
+                flagCheapest = false;
+                flagTransfer = false;
+                break;
+            }
+        case 3:
+            {
+                flagStation = false;
+                flagEdge = false;
+                flagShortest = false;
+                flagCheapest = true;
+                flagTransfer = false;
+                break;
+            }
+        case 4:
+            {
+                flagStation = false;
+                flagEdge = false;
+                flagShortest = false;
+                flagCheapest = false;
+                flagTransfer = true;
+                break;
+            }
+        default:
+            break;
+        }
+    });*/
 
-    });
-*/
 }
 
 void GraphWidget::mouseDoubleClickEvent(QMouseEvent *evnt)
 {
     if((evnt->button() & Qt::LeftButton) &&
             scene->items(evnt->pos(), Qt::IntersectsItemShape).empty() &&
-            flagStation == true)
+            flagStation)
     {
         Station *st = new Station(this);
         scene->addItem(st);
@@ -96,15 +147,47 @@ void GraphWidget::mouseDoubleClickEvent(QMouseEvent *evnt)
 
 void GraphWidget::keyPressEvent(QKeyEvent *evnt)
 {
-    if(evnt->key() == Qt::Key_Space)
+    if(evnt->key() == Qt::Key_Space &&
+            flagEdge)
     {
-        if((scene->selectedItems().count() == 2)  &&
-                (scene->selectedItems().first()->type() == StationType) &&
-                (scene->selectedItems().last()->type() == StationType))
+        QList<QGraphicsItem *> listStation = scene->selectedItems();
+
+        if((listStation.count() == 2)  &&
+                (listStation.first()->type() == StationType) &&
+                (listStation.last()->type() == StationType))
         {
-            Edge *edg = new Edge((Station *)scene->selectedItems().first(), (Station *)scene->selectedItems().last());
+            Edge *edg = new Edge((Station *)listStation.first(), (Station *)listStation.last());
             scene->addItem(edg);
             update();
+
+            // проверка стала ли станция пересадочной
+            for(int i=0; i < 2; ++i)
+            {
+                auto iter = listStation.begin();
+
+                if((static_cast<Station *>(*iter))->getCost() == 0) // проверяем что станция не пересадочная
+                {
+                    QList<QGraphicsItem *> listItem = scene->items((static_cast<Station *>(*iter))->pos());
+                    unsigned int count = 0;
+                    qDebug()<<(*listItem.begin())->type()<<listItem.size();
+
+                    for(auto iterItem = listItem.begin(); iterItem != listItem.end(); ++iterItem)
+                    {
+                        if((*iterItem)->type() == EdgeType) // считаем количество присоеденённых к станции прогонов
+                        {
+                            ++count;
+                        }
+                    }
+
+                    // задаём цену станции
+                    if(count > 2)
+                    {
+                        double dInput = QInputDialog::getDouble(this, "Input cost", "Enter the price of the transfer station");
+                        (static_cast<Station *>(*iter))->setCost(dInput);
+                        ++iter;
+                    }
+                }
+            }
         }
     }
 

@@ -6,7 +6,6 @@
 Edge::Edge(Station *sourceStation, Station *destStation)
 {
     setZValue(-2);
-    setFlag(ItemIsSelectable);
     source = sourceStation;
     dest = destStation;
     adjust();
@@ -27,7 +26,7 @@ void Edge::adjust()
     if(!source || !dest)
         return;
 
-    QLineF line( mapFromItem(source, -20, -20), mapFromItem(dest, -20, -20));
+    QLineF line( mapFromItem(source, -25, -25), mapFromItem(dest, -25, -25));
     qreal length = line.length();
 
     prepareGeometryChange();

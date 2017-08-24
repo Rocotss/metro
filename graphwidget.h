@@ -22,8 +22,6 @@ private:
 
     QGraphicsView *vw;
     QGraphicsScene *scene;
-    const int StationType;
-    const int EdgeType;
     bool flagStation;
     bool flagEdge;
     bool flagShortest;

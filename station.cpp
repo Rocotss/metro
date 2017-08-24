@@ -8,7 +8,7 @@
 #include <QGraphicsSceneMouseEvent>
 
 Station::Station(GraphWidget *graphWidget)
-    :graph(graphWidget)
+    :graph(graphWidget), cost(0)
 {
     setFlag(ItemIsMovable);
     setFlag(ItemIsSelectable);
@@ -30,22 +30,51 @@ QPainterPath Station::shape() const
 
 void Station::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    if(!isSelected())
+    if(cost == 0)
     {
-        painter->setPen(QPen(Qt::black, 2, Qt::SolidLine));
-        painter->setBrush(Qt::red);
-        painter->drawEllipse(-20, -20, 20, 20);
+        if(!isSelected())
+        {
+            painter->setPen(QPen(Qt::black, 3, Qt::SolidLine));
+            painter->setBrush(Qt::red);
+            painter->drawEllipse(-20, -20, 20, 20);
+        }
+        else
+        {
+            painter->setPen(QPen(Qt::blue, 3, Qt::DashLine));
+            painter->setBrush(Qt::red);
+            painter->drawEllipse(-20, -20, 20, 20);
+        }
     }
     else
     {
-        painter->setPen(QPen(Qt::blue, 2, Qt::DashLine));
-        painter->setBrush(Qt::red);
-        painter->drawEllipse(-20, -20, 20, 20);
+        if(!isSelected())
+        {
+            painter->setPen(QPen(Qt::black, 3, Qt::SolidLine));
+            painter->setBrush(Qt::green);
+            painter->drawEllipse(-20, -20, 20, 20);
+        }
+        else
+        {
+            painter->setPen(QPen(Qt::blue, 3, Qt::DashLine));
+            painter->setBrush(Qt::green);
+            painter->drawEllipse(-20, -20, 20, 20);
+        }
     }
+
 }
 
 int Station::type() const
 {
 
     return QGraphicsItem::UserType+2;
+}
+
+void Station::setCost(double input_cost)
+{
+    cost = input_cost;
+}
+
+double Station::getCost()
+{
+    return cost;
 }

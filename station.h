@@ -17,10 +17,11 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *) override;
 
     int type() const;
+    void setCost(double cost);
+    double getCost();
 
 private:
     GraphWidget *graph;
-    std::string name;
     double cost;
 };
 
