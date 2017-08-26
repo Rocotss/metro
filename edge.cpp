@@ -5,7 +5,7 @@
 
 Edge::Edge(Station *sourceStation, Station *destStation)
 {
-    setZValue(-2);
+    setZValue(0);
     source = sourceStation;
     dest = destStation;
     adjust();
@@ -26,7 +26,7 @@ void Edge::adjust()
     if(!source || !dest)
         return;
 
-    QLineF line( mapFromItem(source, -25, -25), mapFromItem(dest, -25, -25));
+    QLineF line( mapFromItem(source, 10, 10), mapFromItem(dest, 10, 10));
     qreal length = line.length();
 
     prepareGeometryChange();

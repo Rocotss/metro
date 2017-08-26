@@ -3,6 +3,7 @@
 #include "edge.h"
 
 #include <set>
+#include <math.h>
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QGraphicsItem>
@@ -14,6 +15,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QInputDialog>
+#include <QMessageBox>
 
 #include <QDebug>
 
@@ -156,40 +158,66 @@ void GraphWidget::keyPressEvent(QKeyEvent *evnt)
                 (listStation.first()->type() == StationType) &&
                 (listStation.last()->type() == StationType))
         {
-            Edge *edg = new Edge((Station *)listStation.first(), (Station *)listStation.last());
-            scene->addItem(edg);
-            update();
+            QPointF st1 = listStation.first()->pos();
+            QPointF st2 = listStation.last()->pos();
+            qreal h = 7.5 * (st1.y() - st2.y()) / sqrt(pow((st1.x() - st2.x()), 2) + pow((st1.y() - st2.y()), 2));
+            qreal w = sqrt(pow(7.5, 2) - pow(h, 2));
 
-            // проверка стала ли станция пересадочной
-            for(int i=0; i < 2; ++i)
+            //if()
+
+
+            if(true)//scene->items().empty()) // проверям, что прогон не перескается с другими объектами
             {
-                auto iter = listStation.begin();
+                Edge *edg = new Edge((Station *)listStation.first(), (Station *)listStation.last());
+                scene->addItem(edg);
+                update();
 
-                if((static_cast<Station *>(*iter))->getCost() == 0) // проверяем что станция не пересадочная
+                // проверка стала ли станция пересадочной
+                for(int i=0; i < 2; ++i)
                 {
-                    QList<QGraphicsItem *> listItem = scene->items((static_cast<Station *>(*iter))->pos());
-                    unsigned int count = 0;
-                    qDebug()<<(*listItem.begin())->type()<<listItem.size();
+                    auto iter = listStation.begin();
 
-                    for(auto iterItem = listItem.begin(); iterItem != listItem.end(); ++iterItem)
+                    if((static_cast<Station *>(*iter))->getCost() == 0) // проверяем что станция не пересадочная
                     {
-                        if((*iterItem)->type() == EdgeType) // считаем количество присоеденённых к станции прогонов
+                        QList<QGraphicsItem *> listItem = scene->items((static_cast<Station *>(*iter))->pos()+QPointF(10,10));
+                        unsigned int count = 0;
+                        qDebug()<<(*listItem.begin())->type()<<listItem.size();
+
+                        for(auto iterItem = listItem.begin(); iterItem != listItem.end(); ++iterItem)
                         {
-                            ++count;
+                            if((*iterItem)->type() == EdgeType) // считаем количество присоеденённых к станции прогонов
+                            {
+                                ++count;
+                            }
                         }
-                    }
 
-                    // задаём цену станции
-                    if(count > 2)
-                    {
-                        double dInput = QInputDialog::getDouble(this, "Input cost", "Enter the price of the transfer station");
-                        (static_cast<Station *>(*iter))->setCost(dInput);
-                        ++iter;
+                        // задаём цену станции
+                        if(count > 2)
+                        {
+                            double dInput = QInputDialog::getDouble(this, "Input cost", "Enter the price of the transfer station", 1.0);
+                            if(dInput <= 0.0)
+                            {
+                                dInput = 1;
+                                QMessageBox *msgBox = new QMessageBox();
+                                msgBox->setText("Cost dont must <0 ! Cost = 1.");
+                                msgBox->exec();
+                            }
+
+                            (static_cast<Station *>(*iter))->setCost(dInput);
+                            ++iter;
+                        }
                     }
                 }
             }
+            else
+            {
+                QMessageBox *msgBox = new QMessageBox();
+                msgBox->setText(" Edges dont intesect!!");
+                msgBox->exec();
+            }
         }
     }
+
 
     if(evnt->key() == Qt::Key_Delete &&
             scene->selectedItems().count() == 1)
