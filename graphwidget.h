@@ -19,6 +19,7 @@ public:
 private:
     void mouseDoubleClickEvent(QMouseEvent *evnt);
     void keyPressEvent(QKeyEvent *evnt);
+    QPolygonF boundPolyg(QPointF pos0, QPointF pos1, qreal widthLine);
 
     QGraphicsView *vw;
     QGraphicsScene *scene;

@@ -149,65 +149,86 @@ void GraphWidget::mouseDoubleClickEvent(QMouseEvent *evnt)
 
 void GraphWidget::keyPressEvent(QKeyEvent *evnt)
 {
+    //(5) проверякм, что нажат пробел
     if(evnt->key() == Qt::Key_Space &&
             flagEdge)
     {
         QList<QGraphicsItem *> listStation = scene->selectedItems();
 
+        //(4) проверяем, что прогон рисуется между станциями
         if((listStation.count() == 2)  &&
                 (listStation.first()->type() == StationType) &&
                 (listStation.last()->type() == StationType))
         {
-            QPointF st1 = listStation.first()->pos();
-            QPointF st2 = listStation.last()->pos();
-            qreal h = 7.5 * (st1.y() - st2.y()) / sqrt(pow((st1.x() - st2.x()), 2) + pow((st1.y() - st2.y()), 2));
-            qreal w = sqrt(pow(7.5, 2) - pow(h, 2));
+             //(3) проверям, что прогон не перескается с другими прогонами
+            bool change = true;
+            QList<QGraphicsItem *> edgeIntersect = scene->items(boundPolyg(listStation.first()->pos(), listStation.last()->pos(), Edge::penWidth), Qt::IntersectsItemShape);
+            unsigned coutEdge = 0;
 
-            //if()
-
-
-            if(true)//scene->items().empty()) // проверям, что прогон не перескается с другими объектами
+            for(auto searchEdge = edgeIntersect.begin(); searchEdge != edgeIntersect.end(); ++searchEdge)
             {
-                Edge *edg = new Edge((Station *)listStation.first(), (Station *)listStation.last());
-                scene->addItem(edg);
-                update();
-
-                // проверка стала ли станция пересадочной
-                for(int i=0; i < 2; ++i)
+                if((*searchEdge)->type() == EdgeType)
                 {
-                    auto iter = listStation.begin();
-
-                    if((static_cast<Station *>(*iter))->getCost() == 0) // проверяем что станция не пересадочная
-                    {
-                        QList<QGraphicsItem *> listItem = scene->items((static_cast<Station *>(*iter))->pos()+QPointF(10,10));
-                        unsigned int count = 0;
-                        qDebug()<<(*listItem.begin())->type()<<listItem.size();
-
-                        for(auto iterItem = listItem.begin(); iterItem != listItem.end(); ++iterItem)
-                        {
-                            if((*iterItem)->type() == EdgeType) // считаем количество присоеденённых к станции прогонов
-                            {
-                                ++count;
-                            }
-                        }
-
-                        // задаём цену станции
-                        if(count > 2)
-                        {
-                            double dInput = QInputDialog::getDouble(this, "Input cost", "Enter the price of the transfer station", 1.0);
-                            if(dInput <= 0.0)
-                            {
-                                dInput = 1;
-                                QMessageBox *msgBox = new QMessageBox();
-                                msgBox->setText("Cost dont must <0 ! Cost = 1.");
-                                msgBox->exec();
-                            }
-
-                            (static_cast<Station *>(*iter))->setCost(dInput);
-                            ++iter;
-                        }
-                    }
+                    ++coutEdge;
+                    change = false;
                 }
+            }
+            // пока что не работает, т.к. длинна проверяющего прямоугольника больше чем нужно
+            if(true)
+            {
+                // (2.5) проверяем, что прогонов меньше пяти
+                if(coutEdge < 5)
+                {
+                    Edge *edg = new Edge(static_cast<Station *>(listStation.first()), static_cast<Station *>(listStation.last()));
+                    scene->addItem(edg);
+                    update();
+
+                    //(2) проверка стала ли станция пересадочной
+                    for(int i=0; i < 2; ++i)
+                    {
+                        auto iter = listStation.begin();
+
+                        //(1) проверяем что станция не пересадочная
+                        if((static_cast<Station *>(*iter))->getCost() == 0)
+                        {
+                            QList<QGraphicsItem *> listItem = scene->items((static_cast<Station *>(*iter))->pos()+QPointF(10,10), Qt::IntersectsItemShape);
+                            unsigned int count = 0;
+                            qDebug()<<(*listItem.begin())->type()<<listItem.size();
+
+                            //(0) задаём цену станции
+                            for(auto iterItem = listItem.begin(); iterItem != listItem.end(); ++iterItem)
+                            {
+                                if((*iterItem)->type() == EdgeType) // считаем количество присоеденённых к станции прогонов
+                                {
+                                    ++count;
+                                }
+                            }
+
+                            if(count > 2)
+                            {
+                                double dInput = QInputDialog::getDouble(this, "Input cost", "Enter the price of the transfer station", 1.0);
+                                if(dInput <= 0.0)
+                                {
+                                    dInput = 1;
+                                    QMessageBox *msgBox = new QMessageBox();
+                                    msgBox->setText("Cost dont must <0 ! Cost = 1.");
+                                    msgBox->exec();
+                                }
+
+                                (static_cast<Station *>(*iter))->setCost(dInput);
+                                ++iter;
+                            }
+                            //(0)
+
+                        } // (1)
+                    } //(2)
+                }
+                else
+                {
+                    QMessageBox *msgBox = new QMessageBox();
+                    msgBox->setText("Can not attach more than five edges");
+                    mscBox->exec();
+                } //(2.5)
             }
             else
             {
@@ -215,10 +236,12 @@ void GraphWidget::keyPressEvent(QKeyEvent *evnt)
                 msgBox->setText(" Edges dont intesect!!");
                 msgBox->exec();
             }
-        }
-    }
+            //(3)
 
+        } //(4)
+    } //(5)
 
+    // удвление объекта сцены
     if(evnt->key() == Qt::Key_Delete &&
             scene->selectedItems().count() == 1)
     {
@@ -226,4 +249,33 @@ void GraphWidget::keyPressEvent(QKeyEvent *evnt)
         scene->removeItem(data);
         delete data;
     }
+}
+
+QPolygonF GraphWidget::boundPolyg(QPointF point0, QPointF point1, qreal widthLine)
+{
+    QPointF coner1;
+    QPointF coner2;
+    QPointF coner3;
+    QPointF coner4;
+    QPolygonF polyg;
+
+    // ToDo: уменьшить область поиска пересечений до края станции
+
+    qreal gip = sqrt(pow(point0.x() - point1.x(), 2) + pow(point0.y() - point1.y(), 2));
+
+    coner1.setX(point1.x() - (widthLine/2 * (point0.x() - point1.x()) / gip));
+    coner1.setY(point1.y() + (widthLine/2 * (point0.y() - point1.y()) / gip));
+
+    coner2.setX(point1.x() + (widthLine/2 * (point0.x() - point1.x()) / gip));
+    coner2.setY(point1.y() - (widthLine/2 * (point0.x() - point1.x()) / gip));
+
+    coner3.setX(point0.x() + (widthLine/2 * (point1.x() - point0.x()) / gip));
+    coner3.setY(point0.y() - (widthLine/2 * (point1.x() - point0.x()) / gip));
+
+    coner4.setX(point0.x() - (widthLine/2 * (point1.x() - point0.x()) / gip));
+    coner4.setY(point0.y() + (widthLine/2 * (point1.y() - point0.y()) / gip));
+
+    polyg<<coner1<<coner2<<coner3<<coner4;
+
+    return polyg;
 }

@@ -3,6 +3,8 @@
 
 #include <QPainter>
 
+qreal Edge::penWidth = 20.0;
+
 Edge::Edge(Station *sourceStation, Station *destStation)
 {
     setZValue(0);
@@ -33,7 +35,6 @@ void Edge::adjust()
 
     if(length > qreal(0.))
     {
-        qreal penWidth = 15;
         QPointF edgeOffset(penWidth / 2, penWidth / 2);
         sourcePoint = source->pos() + edgeOffset;
         destPoint = dest->pos() - edgeOffset;
@@ -63,16 +64,16 @@ void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         return;
 
     QLineF line(source->pos() - QPointF(10, 10), dest->pos() - QPointF(10, 10));
-    if(qFuzzyCompare(line.length(), qreal(-10.)))
+    if(qFuzzyCompare(line.length(), qreal(0.)))
         return;
 
     if(!isSelected())
     {
-        painter->setPen(QPen(Qt::darkRed,15,Qt::SolidLine));
+        painter->setPen(QPen(Qt::darkRed, penWidth,Qt::SolidLine));
     }
     else
     {
-        painter->setPen(QPen(Qt::darkBlue, 15, Qt::DotLine));
+        painter->setPen(QPen(Qt::darkBlue, penWidth, Qt::DotLine));
     }
     painter->drawLine(line);
 }
@@ -81,4 +82,3 @@ int Edge::type() const
 {
     return QGraphicsItem::UserType+1;
 }
-

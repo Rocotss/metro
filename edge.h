@@ -17,6 +17,8 @@ public:
 
     void adjust();
 
+    static qreal penWidth;
+
 protected:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *) override;
