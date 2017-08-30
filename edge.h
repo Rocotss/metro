@@ -10,14 +10,11 @@ class Edge : public QGraphicsItem
 public:
     Edge(Station *sourceStation, Station *destStation);
 
-    Station *sourceStation() const;
-    Station *destStation() const;
-
     int type() const override;
 
-    void adjust();
+  //  void adjust();
 
-    static qreal penWidth;
+    static const qreal penWidth;
 
 protected:
     QRectF boundingRect() const override;

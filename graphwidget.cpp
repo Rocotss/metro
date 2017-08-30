@@ -2,10 +2,11 @@
 #include "station.h"
 #include "edge.h"
 
-#include <set>
 #include <math.h>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QGraphicsItem>
 #include <QRadioButton>
 #include <QPushButton>
@@ -191,7 +192,7 @@ void GraphWidget::keyPressEvent(QKeyEvent *evnt)
                         //(1) проверяем что станция не пересадочная
                         if((static_cast<Station *>(*iter))->getCost() == 0)
                         {
-                            QList<QGraphicsItem *> listItem = scene->items((static_cast<Station *>(*iter))->pos()+QPointF(10,10), Qt::IntersectsItemShape);
+                            QList<QGraphicsItem *> listItem = scene->items((static_cast<Station *>(*iter))->pos()+QPointF(10,10));
                             unsigned int count = 0;
                             qDebug()<<(*listItem.begin())->type()<<listItem.size();
 
@@ -206,13 +207,13 @@ void GraphWidget::keyPressEvent(QKeyEvent *evnt)
 
                             if(count > 2)
                             {
-                                double dInput = QInputDialog::getDouble(this, "Input cost", "Enter the price of the transfer station", 1.0);
+                                unsigned    int dInput = QInputDialog::getInt(this, "Input cost", "Enter the price of the transfer station", 1.0);
                                 if(dInput <= 0.0)
                                 {
                                     dInput = 1;
-                                    QMessageBox *msgBox = new QMessageBox();
-                                    msgBox->setText("Cost dont must <0 ! Cost = 1.");
-                                    msgBox->exec();
+                                    QMessageBox msgBox;
+                                    msgBox.setText("Cost dont must <0 ! Cost = 1.");
+                                    msgBox.exec();
                                 }
 
                                 (static_cast<Station *>(*iter))->setCost(dInput);
@@ -225,16 +226,16 @@ void GraphWidget::keyPressEvent(QKeyEvent *evnt)
                 }
                 else
                 {
-                    QMessageBox *msgBox = new QMessageBox();
-                    msgBox->setText("Can not attach more than five edges");
-                    mscBox->exec();
+                    QMessageBox msgBox;
+                    msgBox.setText("Can not attach more than five edges");
+                    msgBox.exec();
                 } //(2.5)
             }
             else
             {
-                QMessageBox *msgBox = new QMessageBox();
-                msgBox->setText(" Edges dont intesect!!");
-                msgBox->exec();
+                QMessageBox msgBox;
+                msgBox.setText(" Edges dont intesect!!");
+                msgBox.exec();
             }
             //(3)
 

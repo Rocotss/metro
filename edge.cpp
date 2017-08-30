@@ -3,66 +3,25 @@
 
 #include <QPainter>
 
-qreal Edge::penWidth = 20.0;
+const qreal Edge::penWidth = 20.0;
 
 Edge::Edge(Station *sourceStation, Station *destStation)
 {
-    setZValue(0);
+    setZValue(-0.5);
     source = sourceStation;
     dest = destStation;
-    adjust();
-}
-
-Station *Edge::sourceStation() const
-{
-    return source;
-}
-
-Station *Edge::destStation() const
-{
-    return dest;
-}
-
-void Edge::adjust()
-{
-    if(!source || !dest)
-        return;
-
-    QLineF line( mapFromItem(source, 10, 10), mapFromItem(dest, 10, 10));
-    qreal length = line.length();
-
-    prepareGeometryChange();
-
-    if(length > qreal(0.))
-    {
-        QPointF edgeOffset(penWidth / 2, penWidth / 2);
-        sourcePoint = source->pos() + edgeOffset;
-        destPoint = dest->pos() - edgeOffset;
-    }
-    else
-    {
-        sourcePoint = destPoint = line.p1();
-    }
 }
 
 QRectF Edge::boundingRect() const
 {
-    if(!source || !dest)
-    {
-        return QRectF();
-    }
-
     return QRectF(QPointF(source->pos().x(), source->pos().y()), QSizeF(dest->pos().x() - source->pos().x(),
                                         dest->pos().y() - source->pos().y()))
             .normalized()
-            .adjusted(-20, -20, 20, 20);
+            .adjusted(-20, -20, 0, 0);
 }
 
 void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    if(!source || !dest)
-        return;
-
     QLineF line(source->pos() - QPointF(10, 10), dest->pos() - QPointF(10, 10));
     if(qFuzzyCompare(line.length(), qreal(0.)))
         return;
@@ -76,6 +35,12 @@ void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         painter->setPen(QPen(Qt::darkBlue, penWidth, Qt::DotLine));
     }
     painter->drawLine(line);
+
+    painter->setPen(QPen(Qt::green, 1, Qt::SolidLine));
+    painter->drawLine(line);
+
+    painter->setPen(QPen(Qt::green, 1, Qt::SolidLine));
+    painter->drawRect(boundingRect());
 }
 
 int Edge::type() const

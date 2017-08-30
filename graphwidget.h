@@ -2,10 +2,9 @@
 #define GRAPHWIDGET_H
 
 #include <QWidget>
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <set>
 
+class QGraphicsView;
+class QGraphicsScene;
 class Station;
 class Edge;
 
@@ -17,8 +16,8 @@ public:
     GraphWidget(QWidget *parent = 0);
 
 private:
-    void mouseDoubleClickEvent(QMouseEvent *evnt);
-    void keyPressEvent(QKeyEvent *evnt);
+    void mouseDoubleClickEvent(QMouseEvent *evnt) override;
+    void keyPressEvent(QKeyEvent *evnt) override;
     QPolygonF boundPolyg(QPointF pos0, QPointF pos1, qreal widthLine);
 
     QGraphicsView *vw;

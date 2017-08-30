@@ -18,7 +18,7 @@ public:
 
     int type() const;
     void setCost(double cost);
-    double getCost();
+    unsigned int getCost() const;
 
 private:
     GraphWidget *graph;

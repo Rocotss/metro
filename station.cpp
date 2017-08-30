@@ -12,7 +12,7 @@ Station::Station(GraphWidget *graphWidget)
 {
     setFlag(ItemIsMovable);
     setFlag(ItemIsSelectable);
-    setFlag(ItemSendsGeometryChanges);    
+    setFlag(ItemSendsGeometryChanges);
     setZValue(-1);
 }
 
@@ -61,6 +61,10 @@ void Station::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
         }
     }
 
+    painter->setBrush(Qt::NoBrush);
+    painter->setPen(QPen(Qt::green, 1, Qt::SolidLine));
+    painter->drawRect(boundingRect());
+
 }
 
 int Station::type() const
@@ -74,7 +78,7 @@ void Station::setCost(double input_cost)
     cost = input_cost;
 }
 
-double Station::getCost()
+unsigned int Station::getCost() const
 {
     return cost;
 }

@@ -7,10 +7,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    GraphWidget *widget = new GraphWidget;
-    QMainWindow mainWindow;
-    mainWindow.setCentralWidget(widget);
-    mainWindow.show();
+    GraphWidget widget;
+    widget.show();
 
 
     return a.exec();
