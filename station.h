@@ -20,6 +20,8 @@ public:
     void setCost(double cost);
     unsigned int getCost() const;
 
+    bool flagDextra = false;
+
 private:
     GraphWidget *graph;
     double cost;

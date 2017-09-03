@@ -1,6 +1,8 @@
 #ifndef GRAPHWIDGET_H
 #define GRAPHWIDGET_H
 
+#include <set>
+#include <vector>
 #include <QWidget>
 
 class QGraphicsView;
@@ -8,12 +10,19 @@ class QGraphicsScene;
 class Station;
 class Edge;
 
+struct strDextra
+{
+    Edge *edge;
+    qreal cost;
+};
+
 class GraphWidget : public QWidget
 {
     Q_OBJECT
 
 public:
     GraphWidget(QWidget *parent = 0);
+    void fDextra();
 
 private:
     void mouseDoubleClickEvent(QMouseEvent *evnt) override;
@@ -24,9 +33,10 @@ private:
     QGraphicsScene *scene;
     bool flagStation;
     bool flagEdge;
-    bool flagShortest;
-    bool flagCheapest;
-    bool flagTransfer;
+    unsigned int flagCalc;
+    std::set<Edge *> sEdges;
+    std::vector<std::vector<strDextra>> vDextra;
 };
+
 
 #endif // GRAPHWIDGET_H

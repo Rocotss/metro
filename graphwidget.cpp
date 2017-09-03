@@ -21,10 +21,11 @@
 #include <QDebug>
 
 enum{EdgeType = QGraphicsItem::UserType + 1, StationType};
+enum{Shortest, Cheapest, Transfer};
 
 GraphWidget::GraphWidget(QWidget *parent)
     : QWidget(parent),
-      flagStation(true), flagEdge(true), flagShortest(true), flagCheapest(true), flagTransfer(true)
+      flagStation(true), flagEdge(true), flagCalc(Cheapest)
 {
     scene= new QGraphicsScene(this);
     vw = new QGraphicsView(scene);
@@ -183,6 +184,7 @@ void GraphWidget::keyPressEvent(QKeyEvent *evnt)
                     Edge *edg = new Edge(static_cast<Station *>(listStation.first()), static_cast<Station *>(listStation.last()));
                     scene->addItem(edg);
                     update();
+                    sEdges.insert(edg);
 
                     //(2) проверка стала ли станция пересадочной
                     for(int i=0; i < 2; ++i)
@@ -279,4 +281,17 @@ QPolygonF GraphWidget::boundPolyg(QPointF point0, QPointF point1, qreal widthLin
     polyg<<coner1<<coner2<<coner3<<coner4;
 
     return polyg;
+}
+
+void GraphWidget::fDextra(Station *source, Station *dest)
+{
+    auto itEdge = sEdges.begin();
+    vDextra[0].insert({*itEdge, *itEtdge->getCost(flagCalc)});
+    for(int i = 0; itEdge<sEdges.end();++itEdge)
+    {
+        if(*itEdge->getSource() == source)
+        {
+
+        }
+    }
 }

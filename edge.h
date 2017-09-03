@@ -12,6 +12,9 @@ public:
 
     int type() const override;
 
+    qreal Cost(int type);
+    Station getSource();
+    Station getDest();
   //  void adjust();
 
     static const qreal penWidth;
